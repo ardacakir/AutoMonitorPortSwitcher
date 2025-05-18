@@ -1,4 +1,4 @@
-# USB Monitor Port Switcher
+# USB Monitor Port Switcher v0.6.3
 
 This script listens for USB device changes and automatically switches your monitor's input (e.g., HDMI or DisplayPort) using DDC/CI commands. It’s designed for setups where a USB switch shares a monitor between multiple systems.
 
@@ -38,12 +38,17 @@ pip install -r requirements.txt
 python usb_monitor.py
 ```
 
+4. **Generate the executable**
+
+```bash
+pyinstaller --clean --noconsole --onefile --icon=monitorsw.ico --add-data "monitorsw.ico;." --name=usb_monitor_v0.7 usb_monitor.py
+```
+
 ## Logging
 
 Basic logs are written to:
 
-- `logs/log_output.txt`
-- `logs/switch_log.txt`
+- `C:\Users\USER_NAME\AppData\Local\USBMonitor\logs\switch_log.txt`
 
 ## Notes
 
