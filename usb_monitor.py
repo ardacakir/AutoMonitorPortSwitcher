@@ -60,6 +60,10 @@ def log_event(message):
         except:
             pass
 
+def ensure_settings_file():
+    if not os.path.exists(SETTINGS_FILE):
+        show_settings_popup()
+
 def show_settings_popup():
     def save_settings():
         settings = {
@@ -96,7 +100,7 @@ def show_settings_popup():
     tk.Button(root, text="Save", command=save_settings).pack(pady=10)
     root.mainloop()
 
-show_settings_popup()
+ensure_settings_file()
 
 with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
     config = json.load(f)
