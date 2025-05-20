@@ -41,7 +41,7 @@ python usb_monitor.py
 4. **Generate the executable**
 
 ```bash
-pyinstaller --clean --noconsole --onefile --icon=monitorsw.ico --add-data "monitorsw.ico;." --name=usb_monitor_v0.7 usb_monitor.py
+pyinstaller --clean --noconsole --onefile --icon=monitorsw.ico --add-data "monitorsw.ico;." --name=usb_monitor_v0.8 usb_monitor.py
 ```
 
 ## Logging
