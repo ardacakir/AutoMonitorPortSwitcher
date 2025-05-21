@@ -65,6 +65,19 @@ def ensure_settings_file():
         show_settings_popup()
 
 def show_settings_popup():
+    # Load existing settings if available
+    existing = {
+        "keyboard_id": "VID_04D9&PID_A1DF",
+        "input_connected": "15",
+        "input_disconnected": "18"
+    }
+    if os.path.exists(SETTINGS_FILE):
+        try:
+            with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
+                existing.update(json.load(f))
+        except Exception as e:
+            log_event(f"Failed to read existing settings for popup: {e}")
+
     def save_settings():
         settings = {
             "keyboard_id": keyboard_id_entry.get().strip(),
@@ -84,17 +97,17 @@ def show_settings_popup():
 
     tk.Label(root, text="Keyboard USB ID:").pack()
     keyboard_id_entry = tk.Entry(root)
-    keyboard_id_entry.insert(0, "VID_04D9&PID_A1DF")
+    keyboard_id_entry.insert(0, existing["keyboard_id"])
     keyboard_id_entry.pack()
 
     tk.Label(root, text="Input Code (when Keyboard is CONNECTED):").pack()
     input_connected_entry = tk.Entry(root)
-    input_connected_entry.insert(0, "15")
+    input_connected_entry.insert(0, existing["input_connected"])
     input_connected_entry.pack()
 
     tk.Label(root, text="Input Code (when Keyboard is NOT connected):").pack()
     input_disconnected_entry = tk.Entry(root)
-    input_disconnected_entry.insert(0, "18")
+    input_disconnected_entry.insert(0, existing["input_disconnected"])
     input_disconnected_entry.pack()
 
     tk.Button(root, text="Save", command=save_settings).pack(pady=10)
