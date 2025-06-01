@@ -1,4 +1,4 @@
-# USB Monitor Port Switcher v0.6.3
+# USB Monitor Port Switcher v0.9.0
 
 This script listens for USB device changes and automatically switches your monitor's input (e.g., HDMI or DisplayPort) using DDC/CI commands. It’s designed for setups where a USB switch shares a monitor between multiple systems.
 
@@ -7,6 +7,21 @@ This script listens for USB device changes and automatically switches your monit
 - Detects USB connection/disconnection events
 - Automatically switches monitor input using [ControlMyMonitor](https://www.nirsoft.net/utils/control_my_monitor.html)
 - Fallback polling mechanism if WMI fails
+
+## What's changed
+
+- Monitor ID setting added
+Users can now define monitor_id (e.g., \\.\DISPLAY1\Monitor0) in the Settings UI — no hardcoded serials needed.
+- Settings window layout improved
+Switched to grid() layout for cleaner alignment and spacing.
+- "Test DisplayPort" and "Test HDMI" buttons
+Instantly try monitor input switching from the Settings window.
+- Save button made larger and centered
+For better visual balance and emphasis.
+- "Show Logs" option in tray menu
+Opens switch_log.txt directly from system tray.
+- New colorful tray icon
+Replaced default .ico with a gradient-based USB/monitor icon for better visibility and uniqueness.
 
 ## Files
 
@@ -42,6 +57,8 @@ python usb_monitor.py
 
 ```bash
 pyinstaller --clean --noconsole --onefile --icon=monitorsw.ico --add-data "monitorsw.ico;." --name=usb_monitor_v0.8.2 usb_monitor.py
+
+pyinstaller --clean --noconsole --onefile --icon=monitor.ico --add-data "monitor.ico;." --name=usb_monitor_v0.9.0 usb_monitor.py
 ```
 
 ## Logging

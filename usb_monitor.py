@@ -22,7 +22,7 @@ def get_resource_path(relative_path):
 LOCK_FILE = os.path.join(os.path.dirname(__file__), "usb_monitor.lock")
 #KEYBOARD_IDENTIFIER = "VID_04D9&PID_A1DF"
 CONTROL_EXE = r"C:\Projects\Tools\ControlMyMonitor\ControlMyMonitor.exe"
-MONITOR_ID = "M3LMQS370483"
+
 #INPUT_WHEN_CONNECTED = "15"
 #INPUT_WHEN_DISCONNECTED = "18"
 APP_DATA = os.path.expanduser("~/AppData/Local/USBMonitor")
@@ -60,6 +60,16 @@ def log_event(message):
         except:
             pass
 
+def open_log_file():
+    try:
+        if os.path.exists(LOG_FILE):
+            os.startfile(LOG_FILE)  # Windows-only; opens in default text editor
+        else:
+            messagebox.showinfo("USB Monitor", "Log file not found.")
+    except Exception as e:
+        log_event(f"Failed to open log file: {e}")
+        messagebox.showerror("USB Monitor", f"Could not open log file:\n{e}")
+
 def ensure_settings_file():
     if not os.path.exists(SETTINGS_FILE):
         show_settings_popup()
@@ -67,6 +77,7 @@ def ensure_settings_file():
 def show_settings_popup():
     # Load existing settings if available
     existing = {
+        "monitor_id": "0",
         "keyboard_id": "VID_04D9&PID_A1DF",
         "input_connected": "15",
         "input_disconnected": "18"
@@ -80,37 +91,66 @@ def show_settings_popup():
 
     def save_settings():
         settings = {
+            "monitor_id": monitor_id_entry.get().strip(),
             "keyboard_id": keyboard_id_entry.get().strip(),
             "input_connected": input_connected_entry.get().strip(),
             "input_disconnected": input_disconnected_entry.get().strip()
         }
+        if not settings["monitor_id"]:
+            messagebox.showerror("Error", "Monitor ID cannot be empty.")
+            return        
         os.makedirs(APP_DATA, exist_ok=True)
         with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
             json.dump(settings, f, indent=4)
         messagebox.showinfo("USB Monitor", "Settings saved successfully.")
         root.destroy()
 
+    def test_switch(input_code):
+        monitor_id = monitor_id_entry.get().strip()
+        if not monitor_id:
+            messagebox.showerror("Error", "Please enter a valid Monitor ID before testing.")
+            return
+        try:
+            subprocess.run([CONTROL_EXE, "/SetValue", monitor_id, "60", input_code],
+                        cwd=os.path.dirname(CONTROL_EXE),
+                        check=True)
+            log_event(f"Test switch to input {input_code} sent to monitor: {monitor_id}")
+        except subprocess.CalledProcessError as e:
+            log_event(f"Test switch failed: {e}")
+            messagebox.showerror("Error", f"Failed to switch input to {input_code}.")
+
     root = tk.Tk()
     root.title("USB Monitor Settings")
-    root.geometry("300x200")
     root.resizable(False, False)
 
-    tk.Label(root, text="Keyboard USB ID:").pack()
-    keyboard_id_entry = tk.Entry(root)
+    # Grid-based layout
+    padding = {'padx': 8, 'pady': 4}
+
+    tk.Label(root, text="Monitor ID or Path:").grid(row=0, column=0, sticky="w", **padding)
+    monitor_id_entry = tk.Entry(root, width=40)
+    monitor_id_entry.insert(0, existing.get("monitor_id", "0"))
+    monitor_id_entry.grid(row=0, column=1, **padding)
+
+    tk.Label(root, text="Keyboard USB ID:").grid(row=1, column=0, sticky="w", **padding)
+    keyboard_id_entry = tk.Entry(root, width=40)
     keyboard_id_entry.insert(0, existing["keyboard_id"])
-    keyboard_id_entry.pack()
+    keyboard_id_entry.grid(row=1, column=1, **padding)
 
-    tk.Label(root, text="Input Code (when Keyboard is CONNECTED):").pack()
-    input_connected_entry = tk.Entry(root)
+    tk.Label(root, text="Input Code (when Connected):").grid(row=2, column=0, sticky="w", **padding)
+    input_connected_entry = tk.Entry(root, width=8)
     input_connected_entry.insert(0, existing["input_connected"])
-    input_connected_entry.pack()
+    input_connected_entry.grid(row=2, column=1, sticky="w", **padding)
 
-    tk.Label(root, text="Input Code (when Keyboard is NOT connected):").pack()
-    input_disconnected_entry = tk.Entry(root)
+    tk.Label(root, text="Input Code (when Disconnected):").grid(row=3, column=0, sticky="w", **padding)
+    input_disconnected_entry = tk.Entry(root, width=8)
     input_disconnected_entry.insert(0, existing["input_disconnected"])
-    input_disconnected_entry.pack()
+    input_disconnected_entry.grid(row=3, column=1, sticky="w", **padding)
 
-    tk.Button(root, text="Save", command=save_settings).pack(pady=10)
+    tk.Button(root, text="Test Device Connected", width=20, command=lambda: test_switch(input_connected_entry.get().strip())).grid(row=4, column=0, **padding)
+    tk.Button(root, text="Test Device Disconnected", width=20, command=lambda: test_switch(input_disconnected_entry.get().strip())).grid(row=4, column=1, **padding)
+
+    tk.Button(root, text="Save", width=20, command=save_settings).grid(row=5, column=0, columnspan=2, pady=12)
+
     root.mainloop()
 
 ensure_settings_file()
@@ -118,6 +158,7 @@ ensure_settings_file()
 with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
     config = json.load(f)
 
+MONITOR_ID = config.get("monitor_id", "0")
 KEYBOARD_IDENTIFIER = config.get("keyboard_id", "VID_04D9&PID_A1DF")
 INPUT_WHEN_CONNECTED = config.get("input_connected", "15")
 INPUT_WHEN_DISCONNECTED = config.get("input_disconnected", "18")
@@ -221,6 +262,7 @@ def create_tray_icon():
         MenuItem('Switch Monitor Port', toggle_input),
         Menu.SEPARATOR,
         MenuItem('Edit Settings', lambda icon, item: threading.Thread(target=show_settings_popup).start()),
+        MenuItem('Show Logs', lambda icon, item: threading.Thread(target=open_log_file).start()),
         Menu.SEPARATOR,
         MenuItem('Stop Service', quit_app)
     )
