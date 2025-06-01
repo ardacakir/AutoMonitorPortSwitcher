@@ -252,7 +252,7 @@ def main_loop():
 
 def create_tray_icon():
     global icon
-    icon_path = get_resource_path('monitorsw.ico')
+    icon_path = get_resource_path('monitornew.ico')
     try:
         image = Image.open(icon_path)
     except Exception as e:
