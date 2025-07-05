@@ -5,6 +5,7 @@
 /linux/build
 /linux/dist
 /linux/venv
+/linux/crop_image.py
 *.spec
 *.zip
 usb_monitor.spec

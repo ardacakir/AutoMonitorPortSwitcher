@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SERVICE_NAME="usb_monitor.service"
-DIST_EXECUTABLE="$(pwd)/FedoraRelease/usb_monitor_fedora_v1.0"
+DIST_EXECUTABLE="$(pwd)/FedoraRelease/usb_monitor_fedora_v1.0.1"
 SERVICE_SRC="$(pwd)/systemd/$SERVICE_NAME"
 SERVICE_DEST="$HOME/.config/systemd/user/$SERVICE_NAME"
 
