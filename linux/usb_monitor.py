@@ -55,7 +55,7 @@ def log_event(message: str):
 
 def open_log_file():
     if os.path.exists(LOG_FILE):
-        subprocess.Popen(["xdg-open", LOG_FILE])
+        subprocess.Popen(["kwrite", LOG_FILE])
     else:
         messagebox.showinfo("USB Monitor", "Log file not found.")
 
@@ -202,7 +202,7 @@ def main_loop():
 
 def create_tray_icon():
     global icon
-    icon_path = os.path.join(os.path.dirname(__file__), "..", "monitornew.ico")
+    icon_path = os.path.join(os.path.dirname(__file__), "monitor.png")
     try:
         image = Image.open(icon_path)
     except Exception:

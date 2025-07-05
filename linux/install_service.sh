@@ -5,7 +5,7 @@ TARGET_DIR=/opt/usbmonitor
 sudo mkdir -p "$TARGET_DIR"
 
 sudo cp linux/usb_monitor.py "$TARGET_DIR/usb_monitor.py"
-sudo cp monitornew.ico "$TARGET_DIR/monitornew.ico"
+sudo cp linux/monitor.png "$TARGET_DIR/monitor.png"
 sudo cp linux/requirements.txt "$TARGET_DIR/requirements.txt"
 
 sudo cp linux/systemd/usb_monitor.service /etc/systemd/system/usb_monitor.service
