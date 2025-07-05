@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 import os
+
+# Use AppIndicator backend under Wayland for tray icon support
+if os.environ.get("XDG_SESSION_TYPE") == "wayland":
+    os.environ.setdefault("PYSTRAY_BACKEND", "appindicator")
+
 import sys
 import time
 import json

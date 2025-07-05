@@ -42,6 +42,7 @@ Replaced default .ico with a gradient-based USB/monitor icon for better visibili
 - Python 3.12
 - `ddcutil` command line tool
 - Python modules from `linux/requirements.txt`
+- `python3-gi` and an AppIndicator library such as `libayatana-appindicator3` are required when running under Wayland
 
 ## Installation
 
