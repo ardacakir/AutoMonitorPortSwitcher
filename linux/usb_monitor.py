@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import os
+import logging
+from logging.handlers import RotatingFileHandler
 
 # Configure environment for Wayland sessions when available
 if os.environ.get("XDG_SESSION_TYPE") == "wayland" or os.environ.get("WAYLAND_DISPLAY"):
@@ -11,7 +13,6 @@ import sys
 import time
 import json
 import subprocess
-from datetime import datetime
 import threading
 
 import pyudev
@@ -30,6 +31,26 @@ icon = None
 current_manual_state = False
 
 DDCUTIL_CMD = "ddcutil"
+
+# Logger will be configured once at startup
+logger = None
+
+def setup_logging() -> None:
+    """Initialize rotating file logging."""
+    global logger
+    log_dir = os.path.join(APP_DATA, "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    logger = logging.getLogger("usb_monitor")
+    if not logger.handlers:
+        logger.setLevel(logging.INFO)
+        handler = RotatingFileHandler(
+            LOG_FILE, maxBytes=1024 * 1024, backupCount=3, encoding="utf-8"
+        )
+        formatter = logging.Formatter(
+            "%(asctime)s - %(levelname)s - %(message)s", "%Y-%m-%d %H:%M:%S"
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
 
 def is_wayland() -> bool:
     """Return True if running under a Wayland session."""
@@ -51,12 +72,11 @@ def remove_lock_file():
         os.remove(LOCK_FILE)
 
 
-def log_event(message: str):
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    log_dir = os.path.join(APP_DATA, "logs")
-    os.makedirs(log_dir, exist_ok=True)
-    with open(LOG_FILE, "a", encoding="utf-8") as f:
-        f.write(f"{timestamp} - {message}\n")
+def log_event(message: str, level: int = logging.INFO) -> None:
+    """Record a log message using the configured logger."""
+    if logger is None:
+        setup_logging()
+    logger.log(level, message)
 
 
 def open_log_file():
@@ -82,9 +102,12 @@ def open_log_file():
         if editor:
             subprocess.Popen([editor, LOG_FILE], env=env)
         else:
-            subprocess.Popen(["xdg-open", LOG_FILE], env=env)
+            try:
+                subprocess.Popen(["xdg-open", LOG_FILE], env=env)
+            except FileNotFoundError:
+                subprocess.Popen(["gio", "open", LOG_FILE], env=env)
     except Exception as e:
-        log_event(f"Failed to open log file: {e}")
+        log_event(f"Failed to open log file: {e}", level=logging.ERROR)
         messagebox.showerror("USB Monitor", f"Could not open log file:\n{e}")
 
 
@@ -260,6 +283,7 @@ def quit_app(icon, item):
 
 if __name__ == "__main__":
     check_single_instance()
+    setup_logging()
     log_event("Script started")
     try:
         create_tray_icon()
