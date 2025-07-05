@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 import os
 
-# Use AppIndicator backend under Wayland for tray icon support
-if os.environ.get("XDG_SESSION_TYPE") == "wayland":
+# Configure environment for Wayland sessions when available
+if os.environ.get("XDG_SESSION_TYPE") == "wayland" or os.environ.get("WAYLAND_DISPLAY"):
     os.environ.setdefault("PYSTRAY_BACKEND", "appindicator")
+    os.environ.setdefault("GDK_BACKEND", "wayland")
+    os.environ.setdefault("QT_QPA_PLATFORM", "wayland")
 
 import sys
 import time
@@ -28,6 +30,10 @@ icon = None
 current_manual_state = False
 
 DDCUTIL_CMD = "ddcutil"
+
+def is_wayland() -> bool:
+    """Return True if running under a Wayland session."""
+    return os.environ.get("XDG_SESSION_TYPE") == "wayland" or bool(os.environ.get("WAYLAND_DISPLAY"))
 
 def is_headless():
     return not os.environ.get("DISPLAY") and not os.environ.get("WAYLAND_DISPLAY")
@@ -54,10 +60,32 @@ def log_event(message: str):
 
 
 def open_log_file():
-    if os.path.exists(LOG_FILE):
-        subprocess.Popen(["kwrite", LOG_FILE])
-    else:
-        messagebox.showinfo("USB Monitor", "Log file not found.")
+    """Open the log file using the user's preferred editor or default handler."""
+    if not os.path.exists(LOG_FILE):
+        if is_headless():
+            print("Log file not found.")
+        else:
+            messagebox.showinfo("USB Monitor", "Log file not found.")
+        return
+
+    if is_headless():
+        # In a headless environment we can't open a GUI editor, so just output
+        # the path to the log file.
+        print(f"Log file located at: {LOG_FILE}")
+        return
+
+    editor = os.environ.get("VISUAL") or os.environ.get("EDITOR")
+    try:
+        env = os.environ.copy()
+        if is_wayland():
+            env.setdefault("QT_QPA_PLATFORM", "wayland")
+        if editor:
+            subprocess.Popen([editor, LOG_FILE], env=env)
+        else:
+            subprocess.Popen(["xdg-open", LOG_FILE], env=env)
+    except Exception as e:
+        log_event(f"Failed to open log file: {e}")
+        messagebox.showerror("USB Monitor", f"Could not open log file:\n{e}")
 
 
 def ensure_settings_file():
@@ -107,7 +135,11 @@ def show_settings_popup():
         messagebox.showinfo("USB Monitor", "Settings saved successfully.")
         root.destroy()
 
-    root = tk.Tk()
+    try:
+        root = tk.Tk()
+    except tk.TclError as e:
+        log_event(f"Failed to open settings popup: {e}")
+        return
     root.title("USB Monitor Settings")
     root.resizable(False, False)
 
