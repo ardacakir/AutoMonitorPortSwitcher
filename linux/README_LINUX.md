@@ -5,7 +5,7 @@ It uses PyInstaller to create a standalone executable and runs it automatically 
 
 ---
 
-## 🔧 Requirements
+## Requirements
 
 Install these dependencies:
 
@@ -28,30 +28,30 @@ pip install -r requirements.txt
 
 ---
 
-## ⚙️ Build the Executable
+## Build the Executable
 
 ```bash
 cd linux/
 ../venv/bin/pyinstaller --clean --noconsole --onefile \
   --icon=monitor.png \
   --add-data "monitor.png:." \
-  --name=usb_monitor_v0.10.0 \
+  --name=usb_monitor_v1.0 \
   usb_monitor.py
 ```
 
 This creates a standalone file at:
 ```
-linux/dist/usb_monitor_v0.10.0
+linux/dist/usb_monitor_v1.0
 ```
 
 You can run it directly to test:
 ```bash
-./dist/usb_monitor_v0.10.0
+./dist/usb_monitor_v1.0
 ```
 
 ---
 
-## 🚀 Install as Startup Service
+## Install as Startup Service
 
 To auto-start the program after login:
 
@@ -66,9 +66,9 @@ This:
 
 ---
 
-## 🔄 Updating to a New Version
+## Updating to a New Version
 
-1. Build the new version (e.g. `usb_monitor_v0.10.1`)
+1. Build the new version (e.g. `usb_monitor_v1.0`)
 2. Run the install script again:
 
 ```bash
@@ -79,13 +79,13 @@ That’s it — the service will start the new version on next boot/login.
 
 ---
 
-## 🔄 ~/systemd/usb_monitor.service
+## ~/systemd/usb_monitor.service
 
 This is a template file, no need to touch this
 
 ---
 
-## 🛠️ Troubleshooting
+## Troubleshooting
 
 Check if the service is running:
 
@@ -101,7 +101,7 @@ journalctl --user -u usb_monitor.service -b
 
 ---
 
-## 🧼 Uninstall
+## Uninstall
 
 To disable the service:
 
@@ -114,7 +114,7 @@ Then delete the executable and service file if desired.
 
 ---
 
-## 📦 Notes
+## Notes
 
 - Tray icon support uses `pystray` and may fallback to `AppIndicator` under Wayland
 - GTK or Qt apps can be used for UI; this script currently uses `tkinter` for the settings popup

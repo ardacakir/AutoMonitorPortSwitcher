@@ -1,4 +1,4 @@
-# USB Monitor Port Switcher v0.9.0
+# USB Monitor Port Switcher v1.0.0
 
 This script listens for USB device changes and automatically switches your monitor's input (e.g., HDMI or DisplayPort) using DDC/CI commands. It’s designed for setups where a USB switch shares a monitor between multiple systems.
 
@@ -10,39 +10,32 @@ This script listens for USB device changes and automatically switches your monit
 
 ## What's changed
 
-- Monitor ID setting added
-Users can now define monitor_id (e.g., \\.\DISPLAY1\Monitor0) in the Settings UI — no hardcoded serials needed.
-- Settings window layout improved
-Switched to grid() layout for cleaner alignment and spacing.
-- "Test DisplayPort" and "Test HDMI" buttons
-Instantly try monitor input switching from the Settings window.
-- Save button made larger and centered
-For better visual balance and emphasis.
-- "Show Logs" option in tray menu
-Opens switch_log.txt directly from system tray.
-- New colorful tray icon
-Replaced default .ico with a gradient-based USB/monitor icon for better visibility and uniqueness.
+- Linux systemd service support added
+- Automatically starts at boot and shows tray icon under Wayland or X11
+- Simplified settings and log access from the tray menu
+- Log file rotates automatically and can be opened with one click
+- New compact and trimmed tray icon
 
 ## Files
 
-- `usb_monitor.py` — Main script to run the monitor switcher
-- `requirements.txt` — Python dependencies
-- `monitorsw.ico` — Application icon
+- `usb_monitor.py` — Main script to run the monitor switcher on Windows and Linux
+- `requirements.txt` — Python dependencies for Windows
+- `linux/requirements.txt` — Additional dependencies for Linux
 - `logs/` — Contains `log_output.txt` and `switch_log.txt` for basic tracking
 
 ## Requirements
 
+### Windows
 - Windows 10/11
 - Python 3.10+
 - ControlMyMonitor by NirSoft
 - Python modules: `wmi`, `pywin32`
 
-### Linux (Fedora 42)
-
+### Linux (Fedora 42+)
 - Python 3.12
-- `ddcutil` command line tool
-- Python modules from `linux/requirements.txt`
-- `python3-gi` and an AppIndicator library such as `libayatana-appindicator3` are required when running under Wayland
+- `ddcutil`
+- `python3-gi`, `libayatana-appindicator3`
+- Modules from `linux/requirements.txt`
 
 ## Installation
 
@@ -63,7 +56,7 @@ python usb_monitor.py
 4. **Generate the executable**
 
 ```bash
-pyinstaller --clean --noconsole --onefile --icon=monitornew.ico --add-data "monitornew.ico;." --name=usb_monitor_v0.9.1 usb_monitor.py
+pyinstaller --clean --noconsole --onefile --icon=monitornew.ico --add-data "monitornew.ico;." --name=usb_monitor_v1.0.0 usb_monitor.py
 ```
 
 ### Fedora service
@@ -82,7 +75,7 @@ The service starts on boot and creates a tray icon once a user session is availa
 
 Basic logs are written to:
 
-- `C:\Users\USER_NAME\AppData\Local\USBMonitor\logs\switch_log.txt`
+- Windows: `%LOCALAPPDATA%\USBMonitor\logs\switch_log.txt`
 - `~/.config/USBMonitor/logs/switch_log.txt` on Linux
 
 Logs rotate automatically once they reach 1 MB, keeping the last three files.
@@ -90,7 +83,7 @@ Logs rotate automatically once they reach 1 MB, keeping the last three files.
 ## Notes
 
 - If WMI fails to initialize (common in threads), the script switches to low-frequency polling.
-- You can change monitor input IDs or device name directly in `usb_monitor.py` if needed.
+- Monitor input IDs can be configured from the settings popup rather than editing the script directly.
 
 ## License
 
