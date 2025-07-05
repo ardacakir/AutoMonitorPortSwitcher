@@ -29,6 +29,8 @@ current_manual_state = False
 
 DDCUTIL_CMD = "ddcutil"
 
+def is_headless():
+    return not os.environ.get("DISPLAY") and not os.environ.get("WAYLAND_DISPLAY")
 
 def check_single_instance():
     if os.path.exists(LOCK_FILE):
@@ -59,8 +61,20 @@ def open_log_file():
 
 
 def ensure_settings_file():
+    os.makedirs(APP_DATA, exist_ok=True)
     if not os.path.exists(SETTINGS_FILE):
-        show_settings_popup()
+        if is_headless():
+            print("Headless environment detected. Creating default settings.json...")
+            default_config = {
+                "monitor_bus": "1",
+                "keyboard_id": "046d:c31c",
+                "input_connected": "15",
+                "input_disconnected": "18"
+            }
+            with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
+                json.dump(default_config, f, indent=4)
+        else:
+            show_settings_popup()
 
 
 def show_settings_popup():
@@ -70,6 +84,9 @@ def show_settings_popup():
         "input_connected": "15",
         "input_disconnected": "18",
     }
+    if is_headless():
+        print("Headless environment detected. Skipping settings popup.")
+        return
     if os.path.exists(SETTINGS_FILE):
         try:
             with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
