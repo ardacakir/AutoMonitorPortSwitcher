@@ -89,26 +89,18 @@ def open_log_file():
         return
 
     if is_headless():
-        # In a headless environment we can't open a GUI editor, so just output
-        # the path to the log file.
         print(f"Log file located at: {LOG_FILE}")
         return
 
-    editor = os.environ.get("VISUAL") or os.environ.get("EDITOR")
     try:
         env = os.environ.copy()
         if is_wayland():
             env.setdefault("QT_QPA_PLATFORM", "wayland")
-        if editor:
-            subprocess.Popen([editor, LOG_FILE], env=env)
-        else:
-            try:
-                subprocess.Popen(["xdg-open", LOG_FILE], env=env)
-            except FileNotFoundError:
-                subprocess.Popen(["gio", "open", LOG_FILE], env=env)
+        subprocess.Popen(["xdg-open", LOG_FILE], env=env)
     except Exception as e:
-        log_event(f"Failed to open log file: {e}", level=logging.ERROR)
-        messagebox.showerror("USB Monitor", f"Could not open log file:\n{e}")
+        log_event(f"xdg-open failed: {e}", level=logging.ERROR)
+        if not is_headless():
+            messagebox.showerror("USB Monitor", f"Could not open log file:\n{e}")
 
 
 def ensure_settings_file():
