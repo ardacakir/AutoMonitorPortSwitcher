@@ -85,6 +85,8 @@ Basic logs are written to:
 - `C:\Users\USER_NAME\AppData\Local\USBMonitor\logs\switch_log.txt`
 - `~/.config/USBMonitor/logs/switch_log.txt` on Linux
 
+Logs rotate automatically once they reach 1 MB, keeping the last three files.
+
 ## Notes
 
 - If WMI fails to initialize (common in threads), the script switches to low-frequency polling.
