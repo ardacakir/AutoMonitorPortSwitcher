@@ -12,6 +12,7 @@ mkdir -p "$HOME/.config/systemd/user/"
 
 # Inject correct ExecStart path into a temp service file
 TEMP_SERVICE=$(mktemp)
+trap 'rm -f "$TEMP_SERVICE"' EXIT
 sed "s|^ExecStart=.*|ExecStart=$DIST_EXECUTABLE|" "$SERVICE_SRC" > "$TEMP_SERVICE"
 
 # Copy to final location
