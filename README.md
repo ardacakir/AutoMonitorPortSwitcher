@@ -37,6 +37,12 @@ Replaced default .ico with a gradient-based USB/monitor icon for better visibili
 - ControlMyMonitor by NirSoft
 - Python modules: `wmi`, `pywin32`
 
+### Linux (Fedora 42)
+
+- Python 3.12
+- `ddcutil` command line tool
+- Python modules from `linux/requirements.txt`
+
 ## Installation
 
 1. **Install dependencies**
@@ -59,11 +65,24 @@ python usb_monitor.py
 pyinstaller --clean --noconsole --onefile --icon=monitornew.ico --add-data "monitornew.ico;." --name=usb_monitor_v0.9.1 usb_monitor.py
 ```
 
+### Fedora service
+
+For Fedora 42 you can install the service files provided in the `linux` folder:
+
+```bash
+sudo dnf install ddcutil python3-pip
+sudo pip3 install -r linux/requirements.txt
+sudo bash linux/install_service.sh
+```
+
+The service starts on boot and creates a tray icon once a user session is available.
+
 ## Logging
 
 Basic logs are written to:
 
 - `C:\Users\USER_NAME\AppData\Local\USBMonitor\logs\switch_log.txt`
+- `~/.config/USBMonitor/logs/switch_log.txt` on Linux
 
 ## Notes
 
