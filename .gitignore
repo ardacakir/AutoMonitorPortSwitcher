@@ -2,6 +2,9 @@
 /dist
 /venv
 /linux/*.lock
+/linux/build
+/linux/dist
+/linux/venv
 *.spec
 *.zip
 usb_monitor.spec

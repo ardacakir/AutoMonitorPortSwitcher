@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python3 /opt/usbmonitor/usb_monitor.py
+ExecStart=/home/ardacakir/Projects/AutoMonitorPortSwitcher/linux/FedoraRelease/usb_monitor_v0.10.0
 WorkingDirectory=/opt/usbmonitor
 Restart=on-failure
 

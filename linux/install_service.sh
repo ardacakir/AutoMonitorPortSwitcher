@@ -1,14 +1,27 @@
-#!/usr/bin/env bash
-set -e
+#!/bin/bash
 
-TARGET_DIR=/opt/usbmonitor
-sudo mkdir -p "$TARGET_DIR"
+SERVICE_NAME="usb_monitor.service"
+DIST_EXECUTABLE="$(pwd)/FedoraRelease/usb_monitor_v0.10.0"
+SERVICE_SRC="$(pwd)/systemd/$SERVICE_NAME"
+SERVICE_DEST="$HOME/.config/systemd/user/$SERVICE_NAME"
 
-sudo cp linux/usb_monitor.py "$TARGET_DIR/usb_monitor.py"
-sudo cp linux/monitor.png "$TARGET_DIR/monitor.png"
-sudo cp linux/requirements.txt "$TARGET_DIR/requirements.txt"
+echo "Installing $SERVICE_NAME..."
 
-sudo cp linux/systemd/usb_monitor.service /etc/systemd/system/usb_monitor.service
-sudo systemctl daemon-reload
-sudo systemctl enable usb_monitor.service
-sudo systemctl start usb_monitor.service
+# Ensure user systemd directory exists
+mkdir -p "$HOME/.config/systemd/user/"
+
+# Inject correct ExecStart path into a temp service file
+TEMP_SERVICE=$(mktemp)
+sed "s|^ExecStart=.*|ExecStart=$DIST_EXECUTABLE|" "$SERVICE_SRC" > "$TEMP_SERVICE"
+
+# Copy to final location
+cp "$TEMP_SERVICE" "$SERVICE_DEST"
+rm "$TEMP_SERVICE"
+
+# Reload systemd and enable/start the service
+systemctl --user daemon-reload
+systemctl --user enable "$SERVICE_NAME"
+systemctl --user restart "$SERVICE_NAME"
+
+echo "✅ Service installed and started. Check status with:"
+echo "   systemctl --user status $SERVICE_NAME"
