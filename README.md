@@ -73,6 +73,20 @@ This will:
 - Install and enable the `usb_monitor.service`
 - Ensure the app autostarts with KDE tray support
 
+By default the service is installed as a **systemd user service** under
+`~/.config/systemd/user/`. User services start when your systemd user
+instance is running – typically after you log in (graphical session or
+via SSH). If you want the monitor switcher to run automatically at boot
+even when no session is active, enable *lingering* for your account:
+
+```bash
+sudo loginctl enable-linger <yourusername>
+```
+
+Replace `<yourusername>` with your Linux user name. This makes your
+systemd user instance start during boot so the service runs without
+requiring a login.
+
 ---
 
 ## Features
