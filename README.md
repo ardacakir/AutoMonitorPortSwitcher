@@ -92,7 +92,7 @@ This will:
 
 ---
 
-## Uninstall (optional)
+## Uninstall
 
 ```bash
 systemctl --user disable usb_monitor.service
