@@ -16,7 +16,6 @@ import subprocess
 import threading
 
 import pyudev
-from pystray import Icon, Menu, MenuItem
 from PIL import Image
 import tkinter as tk
 from tkinter import messagebox
@@ -248,6 +247,7 @@ def main_loop():
 
 
 def create_tray_icon():
+    from pystray import Icon, Menu, MenuItem
     global icon
     icon_path = os.path.join(os.path.dirname(__file__), "monitor.png")
     try:
