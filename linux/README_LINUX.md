@@ -1,7 +1,25 @@
 # USB Monitor Auto Switcher — Linux Instructions
 
-This guide explains how to build and install the Linux version of the USB Monitor tool on **Fedora 42 KDE (Wayland)**.  
-It uses PyInstaller to create a standalone executable and runs it automatically at user login via `systemd`.
+**Auto Monitor Port Switcher for Fedora Linux**
+
+Automatically switch your monitor input source based on USB device detection — perfect for dual-system setups (e.g., macOS and Fedora) sharing a single display. Supports headless booting, seamless SDDM logins, and KDE tray integration.
+
+---
+
+## 🛠 I2C Permissions Setup (Required for Monitor Switching)
+
+To enable monitor input switching via DDC/CI, the script must access `/dev/i2c-*` devices.  
+These device files are usually not accessible by default for regular users, especially after a headless boot.
+
+The installer now includes a **safe and automatic setup** that:
+
+- Ensures the `i2c` group exists
+- Adds the current user to the `i2c` group (you may need to reboot or re-login for it to take effect)
+- Creates a udev rule to grant correct permissions to `/dev/i2c-*` devices
+
+### Why this is necessary
+
+Without these changes, the service fails to communicate with your monitor over I2C after a headless boot, due to `EACCES(13): Permission denied` errors. This setup guarantees correct access **without disabling SELinux** or requiring dangerous permission changes.
 
 ---
 
@@ -42,11 +60,13 @@ cd linux/
 ```
 
 This creates a standalone file at:
+
 ```
 linux/dist/usb_monitor_v1.0
 ```
 
 You can run it directly to test:
+
 ```bash
 ./dist/usb_monitor_v1.0
 ```
@@ -58,17 +78,30 @@ You can run it directly to test:
 This script now performs a full installation for system-wide use:
 
 - Copies the compiled binary to `/opt/usbmonitor/` with correct SELinux permissions
-- Installs or updates the `usb_monitor.service` into `/etc/systemd/system/`
+- Installs or updates the `usb_monitor.service` into the **systemd user service directory** (`~/.config/systemd/user/`)
 - Ensures executable is runnable in headless mode at boot
-- Enables and starts the service automatically
+- Enables and starts the service automatically for the current user
 
 The script also searches for the compiled binary in either the current folder or the `FedoraRelease/` folder.
+
+The installation includes automatic setup of I2C access rules and adds the current user to the `i2c` group to allow seamless headless monitor switching.
+
+---
+
+## Features
+
+- ✅ Automatically sets up I2C access rules for seamless headless monitor switching
+- ✅ Supports systemd user services for per-user startup
+- ✅ Works with SELinux enabled without requiring relaxation
+- ✅ KDE tray integration with fallback to AppIndicator under Wayland
+- ✅ Uses `tkinter` for settings popup UI
+- ✅ Stores settings and logs in `~/.config/USBMonitor/`
 
 ---
 
 ## Updating to a New Version
 
-1. Build the new version (e.g. `usb_monitor_v1.0`)
+1. Build the new version (e.g., `usb_monitor_v1.0`)
 2. Run the install script again:
 
 ```bash
@@ -81,24 +114,27 @@ That’s it — the service will start the new version on next boot/login.
 
 ## /etc/systemd/system/usb_monitor.service
 
-The service file is automatically generated from the template under `systemd/usb_monitor.service`
+The service file is automatically generated from the template under `systemd/usb_monitor.service`  
 and installed to `/etc/systemd/system/` by the script. You should not need to edit it manually.
 
 ---
 
-## Troubleshooting
+### 🧯 Troubleshooting
 
-Check if the service is running:
+- **Service fails to start after reboot**  
+  - Check if the binary is marked as executable and readable:  
+    `ls -l /opt/usbmonitor/usb_monitor_fedora_*`  
+  - Run `systemctl --user status usb_monitor.service` for details.
 
-```bash
-systemctl --user status usb_monitor.service
-```
+- **Monitor not switching**  
+  - Ensure the user is in the `i2c` group:  
+    `groups`  
+  - Check if `ddcutil detect` lists the monitor.  
+  - Make sure `/dev/i2c-*` has the correct permissions.
 
-See logs:
-
-```bash
-journalctl --user -u usb_monitor.service -b
-```
+- **No tray icon after login**  
+  - Confirm that the autostart `.desktop` entry exists in `~/.config/autostart/`  
+  - You may need to log out and back in once after install.
 
 ---
 
@@ -117,6 +153,6 @@ Then delete the executable and service file if desired.
 
 ## Notes
 
-- Tray icon support uses `pystray` and may fallback to `AppIndicator` under Wayland
-- GTK or Qt apps can be used for UI; this script currently uses `tkinter` for the settings popup
-- Lockfile is stored in the script folder, settings and logs in `~/.config/USBMonitor/`
+- Tray icon support uses `pystray` and may fallback to `AppIndicator` under Wayland.  
+- GTK or Qt apps can be used for UI; this script currently uses `tkinter` for the settings popup.  
+- Lockfile is stored in the script folder, settings and logs in `~/.config/USBMonitor/`.

@@ -7,6 +7,8 @@ Type=simple
 ExecStartPre=/bin/sleep 5
 ExecStart=/home/ardacakir/Projects/AutoMonitorPortSwitcher/linux/FedoraRelease/usb_monitor_v1.0
 WorkingDirectory=/opt/usbmonitor
+PrivateDevices=no
+DeviceAllow=/dev/i2c-6 rw
 Restart=on-failure
 
 [Install]

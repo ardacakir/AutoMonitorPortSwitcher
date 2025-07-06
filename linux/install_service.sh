@@ -19,6 +19,46 @@ else
 fi
 
 echo "🔧 Preparing system binary at: $DIST_EXECUTABLE"
+echo "🛠️  Checking I2C group permissions..."
+
+if ! getent group i2c >/dev/null; then
+    echo "➕ Creating 'i2c' group..."
+    sudo groupadd i2c
+else
+    echo "✅ 'i2c' group already exists."
+fi
+
+if groups $USER | grep -qw i2c; then
+    echo "✅ User '$USER' already in 'i2c' group."
+else
+    echo "➕ Adding user '$USER' to 'i2c' group..."
+    sudo usermod -aG i2c $USER
+    echo "⚠️  You must log out and back in (or reboot) for group changes to apply."
+fi
+
+I2C_RULE_PATH="/etc/udev/rules.d/45-ddcutil-i2c.rules"
+if [ ! -f "$I2C_RULE_PATH" ]; then
+    echo "➕ Creating udev rule for i2c device permissions..."
+    echo 'KERNEL=="i2c-[0-9]*", GROUP="i2c", MODE="0660"' | sudo tee "$I2C_RULE_PATH" > /dev/null
+    echo "🔄 Reloading udev rules..."
+    sudo udevadm control --reload-rules
+    sudo udevadm trigger
+else
+    echo "✅ Udev rule already exists at $I2C_RULE_PATH"
+fi
+
+echo "🧼 Checking for running instances of the previous binary..."
+PIDS=$(sudo fuser "$DIST_EXECUTABLE" 2>/dev/null)
+
+if [ -n "$PIDS" ]; then
+    echo "🔪 Found running instances: $PIDS"
+    echo "   Terminating them to avoid file lock issues..."
+    sudo fuser -k "$DIST_EXECUTABLE" > /dev/null 2>&1 || true
+    echo ""
+else
+    echo "✅ No running instances found."
+fi
+
 echo "Copying binary to /opt/usbmonitor..."
 sudo mkdir -p /opt/usbmonitor
 sudo cp "$LOCAL_EXECUTABLE" "$DIST_EXECUTABLE"
