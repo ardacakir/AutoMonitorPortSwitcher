@@ -278,7 +278,13 @@ if __name__ == "__main__":
     setup_logging()
     log_event("Script started")
     try:
-        create_tray_icon()
+        if is_headless():
+            log_event("Headless mode detected. Running monitor logic only.")
+            threading.Thread(target=main_loop, daemon=True).start()
+            while True:
+                time.sleep(60)  # Keep the script alive
+        else:
+            create_tray_icon()
     except KeyboardInterrupt:
         log_event("Script terminated by user.")
     except Exception as e:
