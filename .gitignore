@@ -16,9 +16,6 @@ linux/build/
 linux/dist/
 *.log
 
-# Binary output
-*.exe
-
 # Logs
 logs/
 linux/logs/
