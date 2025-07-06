@@ -4,7 +4,7 @@ SERVICE_NAME="usb_monitor.service"
 DIST_EXECUTABLE="/opt/usbmonitor/usb_monitor_fedora_v1.1"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CANDIDATE1="$SCRIPT_DIR/usb_monitor_fedora_v1.1"
-CANDIDATE2="$SCRIPT_DIR/FedoraRelease/usb_monitor_fedora_v1.1"
+CANDIDATE2="$SCRIPT_DIR/releases/usb_monitor_fedora_v1.1"
 
 if [ -f "$CANDIDATE1" ]; then
   LOCAL_EXECUTABLE="$CANDIDATE1"

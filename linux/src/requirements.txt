@@ -1,0 +1,4 @@
+pyudev
+pystray
+pillow
+PyGObject

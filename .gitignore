@@ -1,11 +1,28 @@
-/build
-/dist
-/venv
-/linux/*.lock
-/linux/build
-/linux/dist
-/linux/venv
-/linux/crop_image.py
+# Python cache and environment
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 *.spec
-*.zip
-usb_monitor.spec
+
+# Virtual environments
+venv/
+linux/venv/
+
+# PyInstaller build output
+build/
+dist/
+linux/build/
+linux/dist/
+*.log
+
+# Binary output
+*.exe
+
+# Logs
+logs/
+linux/logs/
+*.lock
+
+# VS Code settings
+.vscode/

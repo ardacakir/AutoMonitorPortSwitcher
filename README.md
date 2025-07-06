@@ -1,90 +1,137 @@
-# USB Monitor Port Switcher v1.0.0
+# Auto Monitor Port Switcher
 
-This script listens for USB device changes and automatically switches your monitor's input (e.g., HDMI or DisplayPort) using DDC/CI commands. It’s designed for setups where a USB switch shares a monitor between multiple systems.
+Auto-switch your monitor input based on USB device detection.  
+Built for **Fedora Linux + KDE**, this utility lets you share a single display between a Linux PC and another device (e.g., Mac Mini) using a USB switch.
+
+> **Linux-only development from v1.0 onward.**  
+> Legacy Windows versions are archived under the `windows/` folder for reference only.
+
+---
+
+## Purpose
+
+This tool detects the presence of a specific USB device (e.g. your keyboard) and switches the monitor’s input source automatically using `ddcutil`.
+
+Perfect for:
+- **Dual-system setups** (e.g. Fedora + macOS)
+- **Single-monitor workflows**
+- **Headless boots** with USB switch reconnect
+- Seamless **KDE tray integration**
+
+---
+
+## Linux Installation (Fedora/KDE)
+
+See full steps in [`linux/README_LINUX.md`](linux/README_LINUX.md)
+
+### 1. Dependencies
+
+```bash
+sudo dnf install python3 python3-pip python3-devel \
+                 pyudev xdg-utils tk pillow
+```
+
+### 2. Create virtual environment & install
+
+```bash
+cd linux/
+python3 -m venv venv
+source venv/bin/activate
+pip install -r src/requirements.txt
+```
+
+---
+
+### 3. Build the Executable
+
+```bash
+cd linux/
+../venv/bin/pyinstaller --clean --noconsole --onefile \
+  --icon=src/monitor.png \
+  --add-data "src/monitor.png:." \
+  --name=usb_monitor_fedora_v1.1 \
+  src/usb_monitor.py
+```
+
+You’ll find the result in `linux/dist/`. Test it by running:
+
+```bash
+./dist/usb_monitor_fedora_v1.1
+```
+
+---
+
+### 4. Install as a systemd service
+
+```bash
+./install_service.sh
+```
+
+This will:
+- Copy the binary to `/opt/usbmonitor/`
+- Set up I2C access and `udev` rules
+- Install and enable the `usb_monitor.service`
+- Ensure the app autostarts with KDE tray support
+
+---
 
 ## Features
 
-- Detects USB connection/disconnection events
-- Automatically switches monitor input using [ControlMyMonitor](https://www.nirsoft.net/utils/control_my_monitor.html)
-- Fallback polling mechanism if WMI fails
+- KDE tray icon with automatic input switching
+- Auto-setup of `i2c` permissions for `ddcutil`
+- Works during headless boots (e.g. after USB reconnect)
+- Built-in `tkinter` popup to change USB ID or monitor ports
+- SELinux-friendly — no permission hacks required
 
-## What's changed
+---
 
-- Linux systemd service support added
-- Automatically starts at boot and shows tray icon under Wayland or X11
-- Simplified settings and log access from the tray menu
-- Log file rotates automatically and can be opened with one click
-- New compact and trimmed tray icon
+## Settings & Logs
 
-## Files
+- Config: `~/.config/USBMonitor/settings.json`
+- Logs: `~/.config/USBMonitor/logs/`
 
-- `usb_monitor.py` — Main script to run the monitor switcher on Windows and Linux
-- `requirements.txt` — Python dependencies for Windows
-- `linux/requirements.txt` — Additional dependencies for Linux
-- `logs/` — Contains `log_output.txt` and `switch_log.txt` for basic tracking
+---
 
-## Requirements
-
-### Windows
-- Windows 10/11
-- Python 3.10+
-- ControlMyMonitor by NirSoft
-- Python modules: `wmi`, `pywin32`
-
-### Linux (Fedora 42+)
-- Python 3.12
-- `ddcutil`
-- `python3-gi`, `libayatana-appindicator3`
-- Modules from `linux/requirements.txt`
-
-## Installation
-
-1. **Install dependencies**
+## Uninstall (optional)
 
 ```bash
-pip install -r requirements.txt
+systemctl --user disable usb_monitor.service
+systemctl --user stop usb_monitor.service
+rm -rf /opt/usbmonitor/
 ```
 
-2. **Download [ControlMyMonitor.exe](https://www.nirsoft.net/utils/control_my_monitor.html)** and place it in the same folder as the script or adjust the path in `usb_monitor.py`.
+---
 
-3. **Run the script**
+## Legacy Windows Builds
 
-```bash
-python usb_monitor.py
+Earlier Windows build is still available under:
+
+```
+windows/Releases/
 ```
 
-4. **Generate the executable**
+This `.exe` file is frozen using `pyinstaller` but **no longer maintained**.
 
-```bash
-pyinstaller --clean --noconsole --onefile --icon=monitornew.ico --add-data "monitornew.ico;." --name=usb_monitor_v1.0.0 usb_monitor.py
+You can inspect the legacy Python source at:
+
+```
+windows/src/
 ```
 
-### Fedora service
-
-For Fedora 42 you can install the service files provided in the `linux` folder:
-
-```bash
-sudo dnf install ddcutil python3-pip
-sudo pip3 install -r linux/requirements.txt
-sudo bash linux/install_service.sh
-```
-
-The service starts on boot and creates a tray icon once a user session is available.
-
-## Logging
-
-Basic logs are written to:
-
-- Windows: `%LOCALAPPDATA%\USBMonitor\logs\switch_log.txt`
-- `~/.config/USBMonitor/logs/switch_log.txt` on Linux
-
-Logs rotate automatically once they reach 1 MB, keeping the last three files.
-
-## Notes
-
-- If WMI fails to initialize (common in threads), the script switches to low-frequency polling.
-- Monitor input IDs can be configured from the settings popup rather than editing the script directly.
+---
 
 ## License
 
-MIT License
+MIT License – see [LICENSE](LICENSE) file.
+
+---
+
+## Tags
+
+`linux` · `fedora` · `monitor` · `ddcutil` · `kde` · `auto-switch` · `usb`
+
+---
+
+> This project is now Linux-only but Windows version was working as of Win11 24H2.  
+> Stable and actively maintained for Fedora KDE (Wayland).  
+> Designed with ❤️ by [@ardacakir](https://github.com/ardacakir)
