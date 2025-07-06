@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=simple
 ExecStartPre=/bin/sleep 5
-ExecStart=/home/ardacakir/Projects/AutoMonitorPortSwitcher/linux/FedoraRelease/usb_monitor_v0.10.0
+ExecStart=/home/ardacakir/Projects/AutoMonitorPortSwitcher/linux/FedoraRelease/usb_monitor_v1.0
 WorkingDirectory=/opt/usbmonitor
 Restart=on-failure
 

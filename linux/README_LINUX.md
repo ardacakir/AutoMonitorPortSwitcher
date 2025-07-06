@@ -26,6 +26,8 @@ pip install -r requirements.txt
 > If no `requirements.txt` exists, install manually:  
 > `pip install pystray pyudev pillow`
 
+> SELinux is supported and properly handled by the installation script.
+
 ---
 
 ## Build the Executable
@@ -53,16 +55,14 @@ You can run it directly to test:
 
 ## Install as Startup Service
 
-To auto-start the program after login:
+This script now performs a full installation for system-wide use:
 
-```bash
-./install_service.sh
-```
-
-This:
-- Installs the `usb_monitor.service` into your systemd user folder
-- Points to the latest versioned executable
+- Copies the compiled binary to `/opt/usbmonitor/` with correct SELinux permissions
+- Installs or updates the `usb_monitor.service` into `/etc/systemd/system/`
+- Ensures executable is runnable in headless mode at boot
 - Enables and starts the service automatically
+
+The script also searches for the compiled binary in either the current folder or the `FedoraRelease/` folder.
 
 ---
 
@@ -79,9 +79,10 @@ That’s it — the service will start the new version on next boot/login.
 
 ---
 
-## ~/systemd/usb_monitor.service
+## /etc/systemd/system/usb_monitor.service
 
-This is a template file, no need to touch this
+The service file is automatically generated from the template under `systemd/usb_monitor.service`
+and installed to `/etc/systemd/system/` by the script. You should not need to edit it manually.
 
 ---
 
