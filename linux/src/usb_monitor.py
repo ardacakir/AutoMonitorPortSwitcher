@@ -249,7 +249,7 @@ def main_loop():
 def create_tray_icon():
     from pystray import Icon, Menu, MenuItem
     global icon
-    icon_path = os.path.join(os.path.dirname(__file__), "monitor.png")
+    icon_path = os.path.join(os.path.dirname(__file__), "monitor_light.png")
     try:
         image = Image.open(icon_path)
     except Exception:
