@@ -47,8 +47,8 @@ pip install -r src/requirements.txt
 ```bash
 cd linux/
 ../venv/bin/pyinstaller --clean --noconsole --onefile \
-  --icon=src/monitor.png \
-  --add-data "src/monitor.png:." \
+  --icon=src/monitor_light.png \
+  --add-data "src/monitor_light.png:." \
   --name=usb_monitor_fedora_v1.1 \
   src/usb_monitor.py
 ```
